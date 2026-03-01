@@ -9,11 +9,24 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:wght@300;400;600&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script>
+  // Run before CSS paints to avoid theme flash
+  try {
+    if (localStorage.getItem('ec_theme') === 'light') {
+      document.documentElement.setAttribute('data-theme', 'light');
+    }
+  } catch(e) {}
+</script>
 <style>
   :root {
     --red: #CC0000;
     --red-dark: #990000;
     --red-glow: #ff2222;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-serif: 'Cormorant Garamond', serif;
+    --font-body: 'DM Sans', sans-serif;
+
+    /* DARK THEME (default) */
     --charcoal: #1a1a1a;
     --dark: #111111;
     --darker: #0a0a0a;
@@ -22,21 +35,292 @@
     --offwhite: #f5f3f0;
     --cream: #ede9e3;
     --accent-gold: #c9a84c;
-    --font-display: 'Bebas Neue', sans-serif;
-    --font-serif: 'Cormorant Garamond', serif;
-    --font-body: 'DM Sans', sans-serif;
+
+    /* Semantic tokens used across all components */
+    --bg-page: #0a0a0a;
+    --bg-section-alt: #111111;
+    --bg-card: rgba(255,255,255,0.02);
+    --bg-card-featured: rgba(204,0,0,0.06);
+    --bg-nav: rgba(10,10,10,0.92);
+    --bg-input: rgba(255,255,255,0.05);
+    --bg-mobile-menu: rgba(10,10,10,0.98);
+    --border-subtle: rgba(255,255,255,0.05);
+    --border-card: rgba(255,255,255,0.05);
+    --border-nav: rgba(204,0,0,0.2);
+    --border-input: rgba(255,255,255,0.12);
+    --text-primary: #f5f3f0;
+    --text-secondary: #aaaaaa;
+    --text-muted: #888888;
+    --text-heading: #ffffff;
+    --toggle-bg: rgba(255,255,255,0.08);
+    --toggle-border: rgba(255,255,255,0.15);
+    --toggle-color: #f5f3f0;
+    --grid-line: rgba(204,0,0,0.04);
+    --hero-radial: rgba(204,0,0,0.12);
+  }
+
+  /* LIGHT THEME */
+  [data-theme="light"] {
+    --charcoal: #e8e8e8;
+    --dark: #f0f0f0;
+    --darker: #fafafa;
+    --gray: #555555;
+    --gray-light: #333333;
+    --offwhite: #111111;
+    --cream: #ede9e3;
+    --accent-gold: #b8922a;
+
+    --bg-page: #f2f2f2;
+    --bg-section-alt: #e8e8e8;
+    --bg-card: rgba(255,255,255,0.7);
+    --bg-card-featured: rgba(204,0,0,0.05);
+    --bg-nav: rgba(255,255,255,0.96);
+    --bg-input: #ffffff;
+    --bg-mobile-menu: rgba(255,255,255,0.99);
+    --border-subtle: rgba(0,0,0,0.07);
+    --border-card: rgba(0,0,0,0.08);
+    --border-nav: rgba(204,0,0,0.15);
+    --border-input: rgba(0,0,0,0.15);
+    --text-primary: #1a1a1a;
+    --text-secondary: #444444;
+    --text-muted: #666666;
+    --text-heading: #0a0a0a;
+    --toggle-bg: rgba(0,0,0,0.06);
+    --toggle-border: rgba(0,0,0,0.15);
+    --toggle-color: #222222;
+    --grid-line: rgba(204,0,0,0.06);
+    --hero-radial: rgba(204,0,0,0.07);
   }
 
   *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  /* Smooth theme transitions */
+  *, *::before, *::after {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
+  }
+  /* But NOT on animations/transforms */
+  .hero-badge, .hero-headline, .hero-subheadline, .hero-desc, .hero-buttons, .hero-stats, .hero-right,
+  .hero-card-float, .btn-primary, .btn-outline, .service-card, .project-card, .theme-toggle {
+    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease,
+                transform 0.3s ease, box-shadow 0.3s ease;
+  }
 
   html { scroll-behavior: smooth; }
 
   body {
     font-family: var(--font-body);
-    background: var(--darker);
-    color: var(--offwhite);
+    background: var(--bg-page);
+    color: var(--text-primary);
     overflow-x: hidden;
+    transition: background 0.35s ease, color 0.35s ease;
   }
+
+  /* ===== THEME TOGGLE ===== */
+  .theme-toggle {
+    background: var(--toggle-bg);
+    border: 1px solid var(--toggle-border);
+    color: var(--toggle-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s;
+    flex-shrink: 0;
+    margin-left: 10px;
+    line-height: 1;
+  }
+  .theme-toggle:hover {
+    background: rgba(204,0,0,0.18);
+    border-color: var(--red);
+    transform: scale(1.08);
+  }
+
+  /* ===== LIGHT MODE OVERRIDES (for hardcoded colors not using vars) ===== */
+  [data-theme="light"] nav {
+    background: var(--bg-nav);
+    border-bottom-color: var(--border-nav);
+    box-shadow: 0 2px 20px rgba(0,0,0,0.08);
+  }
+  [data-theme="light"] .nav-links a { color: #444; }
+  [data-theme="light"] .nav-links a:hover { color: #111; }
+  [data-theme="light"] #home { background: var(--bg-page); }
+  [data-theme="light"] .hero-bg {
+    background: linear-gradient(135deg, rgba(204,0,0,0.05) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 50%, var(--hero-radial) 0%, transparent 60%);
+  }
+  [data-theme="light"] .hero-grid-pattern {
+    background-image: linear-gradient(var(--grid-line) 1px, transparent 1px),
+                      linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  }
+  [data-theme="light"] .hero-headline { color: #0a0a0a; }
+  [data-theme="light"] .hero-subheadline { color: #555; }
+  [data-theme="light"] .hero-desc { color: #666; }
+  [data-theme="light"] .hero-visual-main { background: linear-gradient(135deg, #e0e0e0, #d0d0d0); border-color: rgba(204,0,0,0.15); }
+  [data-theme="light"] .hero-card-float { background: rgba(255,255,255,0.97); border-color: rgba(204,0,0,0.25); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+  [data-theme="light"] .card-float-label { color: #666; }
+  [data-theme="light"] .stat-num { color: #0a0a0a; }
+  [data-theme="light"] .stat-label { color: #777; }
+  [data-theme="light"] .section-title { color: #0a0a0a; }
+  [data-theme="light"] .section-subtitle { color: #666; }
+  [data-theme="light"] .section-label { color: var(--red); }
+  [data-theme="light"] #about { background: linear-gradient(180deg, var(--bg-page), var(--bg-section-alt)); }
+  [data-theme="light"] .about-img-main { background: linear-gradient(135deg, #ddd, #ccc); border-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .about-intro { color: #111; }
+  [data-theme="light"] .about-text { color: #555; }
+  [data-theme="light"] .value-item { background: rgba(255,255,255,0.7); border-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .value-text { color: #444; }
+  [data-theme="light"] .mv-card { background: rgba(255,255,255,0.65); border-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .mv-title { color: #111; }
+  [data-theme="light"] .mv-text { color: #555; }
+  [data-theme="light"] .mv-bg-text { color: rgba(0,0,0,0.04); }
+  [data-theme="light"] #services { background: var(--bg-section-alt); }
+  [data-theme="light"] .service-card { background: rgba(255,255,255,0.65); border-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .service-card:hover { background: rgba(204,0,0,0.04); border-color: rgba(204,0,0,0.3); transform: translateY(-4px); }
+  [data-theme="light"] .service-num { color: rgba(204,0,0,0.08); }
+  [data-theme="light"] .service-name { color: #111; }
+  [data-theme="light"] .service-desc { color: #555; }
+  [data-theme="light"] .service-card.featured { background: rgba(204,0,0,0.04); border-color: rgba(204,0,0,0.18); }
+  [data-theme="light"] #projects { background: linear-gradient(180deg, var(--bg-section-alt), var(--bg-page)); }
+  [data-theme="light"] .filter-btn { background: rgba(0,0,0,0.06); border-color: rgba(0,0,0,0.1); color: #444; }
+  [data-theme="light"] .filter-btn.active,
+  [data-theme="light"] .filter-btn:hover { background: var(--red); border-color: var(--red); color: white; }
+  [data-theme="light"] .project-card { border-color: rgba(0,0,0,0.06); }
+  [data-theme="light"] #testimonials { background: var(--bg-page); }
+  [data-theme="light"] .testimonial-card { background: #ffffff; border-color: rgba(0,0,0,0.07); box-shadow: 0 4px 20px rgba(0,0,0,0.06); }
+  [data-theme="light"] .testimonial-text { color: #444; }
+  [data-theme="light"] .quote-mark { color: rgba(204,0,0,0.15); }
+  [data-theme="light"] .author-name { color: #111; }
+  [data-theme="light"] .author-detail { color: #888; }
+  [data-theme="light"] .testimonials-header .section-title { color: #0a0a0a; }
+  [data-theme="light"] .rating-num { color: #0a0a0a; }
+  [data-theme="light"] .rating-detail { color: #666; }
+  [data-theme="light"] #careers { background: var(--bg-section-alt); }
+  [data-theme="light"] .no-openings-box { background: rgba(255,255,255,0.7); border-color: rgba(0,0,0,0.08); }
+  [data-theme="light"] .no-openings-title { color: #111; }
+  [data-theme="light"] .no-openings-text { color: #555; }
+  [data-theme="light"] [style*="rgba(255,255,255,0.02)"] { background: rgba(255,255,255,0.65) !important; }
+  [data-theme="light"] [style*="rgba(255,255,255,0.05)"] { border-color: rgba(0,0,0,0.07) !important; }
+  [data-theme="light"] [style*="color:white"] { color: #111 !important; }
+  [data-theme="light"] [style*="color:var(--gray)"] { color: #666 !important; }
+  [data-theme="light"] #contact { background: var(--bg-page); }
+  [data-theme="light"] .contact-info { background: #ffffff; border-color: rgba(0,0,0,0.07); }
+  [data-theme="light"] .contact-form { background: #ffffff; border-color: rgba(0,0,0,0.07); }
+  [data-theme="light"] .contact-quote { color: #333; }
+  [data-theme="light"] .contact-item-label { color: #888; }
+  [data-theme="light"] .contact-item-value { color: #222; }
+  [data-theme="light"] .contact-item-value a { color: #222; }
+  [data-theme="light"] .form-title { color: #111; }
+  [data-theme="light"] .form-label { color: #555; }
+  [data-theme="light"] .form-input,
+  [data-theme="light"] .form-select,
+  [data-theme="light"] .form-textarea {
+    background: #f8f8f8;
+    border-color: rgba(0,0,0,0.15);
+    color: #111;
+  }
+  [data-theme="light"] .form-input::placeholder,
+  [data-theme="light"] .form-textarea::placeholder { color: #aaa; }
+  [data-theme="light"] .form-input:focus,
+  [data-theme="light"] .form-textarea:focus,
+  [data-theme="light"] .form-select:focus { border-color: var(--red); background: #fff; }
+  [data-theme="light"] .form-note { color: #888; }
+  [data-theme="light"] .social-btn { background: rgba(0,0,0,0.05); border-color: rgba(0,0,0,0.1); color: #333; }
+  [data-theme="light"] .social-btn:hover { background: var(--red); border-color: var(--red); color: white; }
+  [data-theme="light"] .map-overlay-label { background: rgba(255,255,255,0.95); color: #111; }
+  [data-theme="light"] footer { background: #111 !important; }
+  [data-theme="light"] .footer-inner { border-top-color: rgba(255,255,255,0.08); }
+  [data-theme="light"] .mobile-menu { background: rgba(255,255,255,0.99); }
+  [data-theme="light"] .mobile-menu a { color: #111; border-bottom-color: rgba(0,0,0,0.07); }
+  [data-theme="light"] .mobile-close { color: #333; }
+  [data-theme="light"] .red-divider { opacity: 0.4; }
+
+  /* ============================================================
+     LIGHT MODE: FIX ALL hardcoded "color: white" text
+     These selectors mirror the dark-mode CSS but flip to dark text
+     ============================================================ */
+  [data-theme="light"] .hero-headline,
+  [data-theme="light"] .section-title,
+  [data-theme="light"] .stat-num,
+  [data-theme="light"] .about-intro,
+  [data-theme="light"] .mv-title,
+  [data-theme="light"] .service-name,
+  [data-theme="light"] .card-float-num,
+  [data-theme="light"] .author-name,
+  [data-theme="light"] .footer-logo-text,
+  [data-theme="light"] .form-title,
+  [data-theme="light"] .no-openings-title,
+  [data-theme="light"] .project-title,
+  [data-theme="light"] .testimonials-header .section-title,
+  [data-theme="light"] .rating-num,
+  [data-theme="light"] .testimonial-card .quote-mark { color: #0a0a0a !important; }
+
+  [data-theme="light"] .hero-subheadline,
+  [data-theme="light"] .hero-desc,
+  [data-theme="light"] .section-subtitle,
+  [data-theme="light"] .about-text,
+  [data-theme="light"] .mv-text,
+  [data-theme="light"] .service-desc,
+  [data-theme="light"] .no-openings-text,
+  [data-theme="light"] .testimonial-text,
+  [data-theme="light"] .form-note,
+  [data-theme="light"] .contact-quote,
+  [data-theme="light"] .footer-tagline { color: #555555 !important; }
+
+  [data-theme="light"] .stat-label,
+  [data-theme="light"] .author-detail,
+  [data-theme="light"] .contact-item-label,
+  [data-theme="light"] .mv-bg-text,
+  [data-theme="light"] .project-cat,
+  [data-theme="light"] .project-meta { color: #888888 !important; }
+
+  /* Careers inline-styled boxes */
+  [data-theme="light"] #careers [style*="color:white"],
+  [data-theme="light"] #careers [style*="color: white"] { color: #111 !important; }
+  [data-theme="light"] #careers [style*="background:rgba(255,255,255,0.02)"],
+  [data-theme="light"] #careers [style*="background: rgba(255,255,255,0.02)"] {
+    background: rgba(255,255,255,0.75) !important;
+    border-color: rgba(0,0,0,0.08) !important;
+  }
+
+  /* Nav links text */
+  [data-theme="light"] .nav-logo-text span:first-child { color: var(--red); }
+  [data-theme="light"] .nav-logo-text span:last-child { color: #666; }
+  [data-theme="light"] .hamburger span { background: #333; }
+
+  /* Hero vertical text */
+  [data-theme="light"] .hero-vertical-text { color: rgba(204,0,0,0.25); }
+
+  /* Value items */
+  [data-theme="light"] .value-dot { background: var(--red); }
+
+  /* About badge */
+  [data-theme="light"] .about-badge-float .label { color: rgba(255,255,255,0.9); }
+
+  /* Filter buttons */
+  [data-theme="light"] .projects-filter .filter-btn { color: #444; }
+
+  /* Project overlay */
+  [data-theme="light"] .project-overlay { background: linear-gradient(to top, rgba(0,0,0,0.75) 0%, transparent 100%); }
+
+  /* Rating */
+  [data-theme="light"] .rating-detail { color: #666; }
+  [data-theme="light"] .rating-detail strong { color: #111; }
+
+  /* Contact section bg */
+  [data-theme="light"] #contact { background: var(--bg-page); }
+
+  /* Testimonial stars */
+  [data-theme="light"] .testimonial-stars,
+  [data-theme="light"] .stars { color: #f0a500; }
+
+  /* Footer stays dark always */
+  [data-theme="light"] .footer-copy { color: rgba(255,255,255,0.4); }
+  [data-theme="light"] .footer-copy span { color: rgba(255,255,255,0.7); }
+  [data-theme="light"] .footer-col-title { color: rgba(255,255,255,0.6); }
 
   /* ===== SCROLLBAR ===== */
   ::-webkit-scrollbar { width: 4px; }
@@ -53,9 +337,9 @@
     align-items: center;
     justify-content: space-between;
     height: 72px;
-    background: rgba(10,10,10,0.92);
+    background: var(--bg-nav);
     backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(204,0,0,0.2);
+    border-bottom: 1px solid var(--border-nav);
     transition: all 0.3s;
   }
 
@@ -67,18 +351,19 @@
   }
 
   .nav-logo-icon {
-    width: 44px;
-    height: 44px;
-    background: var(--red);
-    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+    width: 52px;
+    height: 52px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-display);
-    font-size: 16px;
-    color: white;
-    letter-spacing: 1px;
     flex-shrink: 0;
+    overflow: hidden;
+    border-radius: 4px;
+  }
+  .nav-logo-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
   }
 
   .nav-logo-text { display: flex; flex-direction: column; }
@@ -1549,7 +1834,7 @@
 <!-- NAV -->
 <nav id="navbar">
   <a href="#home" class="nav-logo">
-    <div class="nav-logo-icon">EC</div>
+    <div class="nav-logo-icon"><img src="Evolution_Construction_logo.jpeg" alt="Evolution Constructions Logo"></div>
     <div class="nav-logo-text">
       <span>EVOLUTION</span>
       <span>CONSTRUCTIONS</span>
@@ -1564,6 +1849,7 @@
     <li><a href="#careers">Careers</a></li>
     <li><a href="#contact" class="nav-cta">Get Quote</a></li>
   </ul>
+  <button class="theme-toggle" onclick="toggleTheme()" title="Toggle Light/Dark Mode" id="themeToggle">🌙</button>
   <div class="hamburger" onclick="toggleMenu()">
     <span></span><span></span><span></span>
   </div>
@@ -1582,7 +1868,7 @@
 </div>
 
 <!-- WHATSAPP -->
-<a href="https://wa.me/918197498848" target="_blank" class="whatsapp-float" title="WhatsApp Us">💬</a>
+<a href="https://wa.me/918197498848?text=Hello%20Evolution%20Constructions!%0A%0AI%20came%20across%20your%20website%20and%20I%E2%80%99m%20interested%20in%20your%20services.%20Could%20you%20please%20help%20me%20with%20more%20details%20and%20a%20free%20quote%3F%0A%0AThank%20you!" target="_blank" class="whatsapp-float" title="WhatsApp Us">💬</a>
 
 <!-- HERO -->
 <section id="home">
@@ -2009,7 +2295,7 @@
         <span class="no-openings-icon">🏗️</span>
         <h3 class="no-openings-title">NO CURRENT OPENINGS</h3>
         <p class="no-openings-text">We currently have no open positions at this time. However, we are always on the lookout for passionate engineers and construction professionals who share our values. Drop us your resume and we'll reach out when an opportunity arises.</p>
-        <a href="mailto:evolutionconstructions@gmail.com?subject=Resume%20Submission" class="btn-primary" style="margin:0 auto;display:inline-flex;">
+        <a href="/cdn-cgi/l/email-protection#9efbe8f1f2ebeaf7f1f0fdf1f0edeaecebfdeaf7f1f0eddef9f3fff7f2b0fdf1f3a1edebfcf4fbfdeaa3ccfbedebf3fbbbacaecdebfcf3f7ededf7f1f0" class="btn-primary" style="margin:0 auto;display:inline-flex;">
           Submit Your Resume ›
         </a>
       </div>
@@ -2017,17 +2303,17 @@
       <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:40px;" class="reveal">
         <div style="padding:32px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);text-align:center;">
           <div style="font-size:32px;margin-bottom:12px;">🤝</div>
-          <div style="font-family:var(--font-display);font-size:18px;color:white;letter-spacing:2px;margin-bottom:8px;">TEAMWORK</div>
+          <div style="font-family:var(--font-display);font-size:18px;color:var(--text-heading, white);letter-spacing:2px;margin-bottom:8px;">TEAMWORK</div>
           <div style="font-size:13px;color:var(--gray);">We believe great buildings are built by great teams working together</div>
         </div>
         <div style="padding:32px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);text-align:center;">
           <div style="font-size:32px;margin-bottom:12px;">📈</div>
-          <div style="font-family:var(--font-display);font-size:18px;color:white;letter-spacing:2px;margin-bottom:8px;">GROWTH</div>
+          <div style="font-family:var(--font-display);font-size:18px;color:var(--text-heading, white);letter-spacing:2px;margin-bottom:8px;">GROWTH</div>
           <div style="font-size:13px;color:var(--gray);">Continuous learning and professional development for every team member</div>
         </div>
         <div style="padding:32px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.05);text-align:center;">
           <div style="font-size:32px;margin-bottom:12px;">💡</div>
-          <div style="font-family:var(--font-display);font-size:18px;color:white;letter-spacing:2px;margin-bottom:8px;">INNOVATION</div>
+          <div style="font-family:var(--font-display);font-size:18px;color:var(--text-heading, white);letter-spacing:2px;margin-bottom:8px;">INNOVATION</div>
           <div style="font-size:13px;color:var(--gray);">We welcome fresh ideas and modern approaches to construction challenges</div>
         </div>
       </div>
@@ -2068,7 +2354,7 @@
           <div class="contact-icon">🕐</div>
           <div>
             <div class="contact-item-label">Working Hours</div>
-            <div class="contact-item-value">Monday – Saturday<br><span style="color:var(--gray);font-size:13px;">9:00 AM – 6:00 PM</span></div>
+            <div class="contact-item-value">Monday – Sunday<br><span style="color:var(--gray);font-size:13px;">9:00 AM – 10:00 PM</span></div>
           </div>
         </div>
 
@@ -2079,7 +2365,7 @@
           <a href="https://instagram.com/evolution_con/" target="_blank" class="social-btn">
             <span>📸</span> Instagram
           </a>
-          <a href="https://wa.me/918197498848" target="_blank" class="social-btn">
+          <a href="https://wa.me/918197498848?text=Hello%20Evolution%20Constructions!%20%F0%9F%8F%97%EF%B8%8F%0A%0AI%20came%20across%20your%20website%20and%20I%E2%80%99m%20interested%20in%20your%20services.%20I%20would%20love%20to%20discuss%20my%20project%20requirements%20and%20get%20a%20quote.%0A%0APlease%20get%20back%20to%20me%20at%20your%20earliest%20convenience.%20Thank%20you!" target="_blank" class="social-btn">
             <span>💬</span> WhatsApp
           </a>
         </div>
@@ -2091,26 +2377,26 @@
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">First Name *</label>
-              <input type="text" class="form-input" placeholder="Rajesh" required>
+              <input type="text" name="firstName" class="form-input" placeholder="Rajesh" required>
             </div>
             <div class="form-group">
               <label class="form-label">Last Name</label>
-              <input type="text" class="form-input" placeholder="Kumar">
+              <input type="text" name="lastName" class="form-input" placeholder="Kumar">
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
               <label class="form-label">Phone Number *</label>
-              <input type="tel" class="form-input" placeholder="+91 XXXXX XXXXX" required>
+              <input type="tel" name="phone" class="form-input" placeholder="+91 XXXXX XXXXX" required>
             </div>
             <div class="form-group">
               <label class="form-label">Email</label>
-              <input type="email" class="form-input" placeholder="your@email.com">
+              <input type="email" name="email" class="form-input" placeholder="your@email.com">
             </div>
           </div>
           <div class="form-group">
             <label class="form-label">Service Required *</label>
-            <select class="form-select form-input" required>
+            <select name="service" class="form-select form-input" required>
               <option value="" disabled selected>Select a service...</option>
               <option>Residential Construction</option>
               <option>Commercial Construction</option>
@@ -2123,10 +2409,10 @@
           </div>
           <div class="form-group">
             <label class="form-label">Project Details</label>
-            <textarea class="form-textarea" placeholder="Tell us about your project — location, size, timeline, budget..."></textarea>
+            <textarea name="details" class="form-textarea" placeholder="Tell us about your project — location, size, timeline, budget..."></textarea>
           </div>
           <button type="submit" class="form-submit">SEND ENQUIRY →</button>
-          <p class="form-note">We typically respond within 24 hours. Your information is kept confidential.</p>
+          <p class="form-note">📧 On submit, your enquiry will open in your email app & WhatsApp for confirmation. We typically respond within 24 hours.</p>
         </form>
       </div>
     </div>
@@ -2136,9 +2422,10 @@
 <!-- MAP -->
 <div class="map-section">
   <iframe
-    src="https://www.google.com/maps?q=EVOLUTION+Constructions&output=embed"
+    src="https://maps.google.com/maps?q=EVOLUTION+Constructions+Bengaluru&output=embed&z=16"
     allowfullscreen=""
-    loading="lazy">
+    loading="lazy"
+    referrerpolicy="no-referrer-when-downgrade">
   </iframe>
   <div class="map-overlay-label">📍 Evolution Constructions — K.R. Puram, Bengaluru</div>
 </div>
@@ -2148,8 +2435,7 @@
   <div class="footer-inner">
     <div class="footer-top">
       <div class="footer-brand">
-        <div class="footer-logo-text">EVOLUTION</div>
-        <span class="footer-logo-sub">CONSTRUCTIONS</span>
+        <img src="Evolution_Construction_logo.jpeg" alt="Evolution Constructions" style="width:80px;height:80px;object-fit:contain;margin-bottom:12px;">
         <p class="footer-tagline">"My buildings will be my legacy. They will speak for me, long after I'm gone."</p>
       </div>
 
@@ -2192,12 +2478,43 @@
 
     <div class="footer-bottom">
       <div class="footer-copy">© 2025 <span>Evolution Constructions</span>. All rights reserved.</div>
-      <div class="footer-copy">K.R. Puram, Bengaluru | Monday – Saturday</div>
+      <div class="footer-copy">K.R. Puram, Bengaluru | Monday – Sunday</div>
     </div>
   </div>
 </footer>
 
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
 <script>
+  // ===== THEME TOGGLE =====
+  function toggleTheme() {
+    var html = document.documentElement;
+    var btn = document.getElementById('themeToggle');
+    var isLight = html.getAttribute('data-theme') === 'light';
+    if (isLight) {
+      html.removeAttribute('data-theme');
+      if (btn) btn.textContent = '🌙';
+      try { localStorage.setItem('ec_theme', 'dark'); } catch(e) {}
+    } else {
+      html.setAttribute('data-theme', 'light');
+      if (btn) btn.textContent = '☀️';
+      try { localStorage.setItem('ec_theme', 'light'); } catch(e) {}
+    }
+  }
+
+  // Restore saved theme immediately (before paint)
+  (function() {
+    try {
+      var saved = localStorage.getItem('ec_theme');
+      if (saved === 'light') {
+        document.documentElement.setAttribute('data-theme', 'light');
+        document.addEventListener('DOMContentLoaded', function() {
+          var btn = document.getElementById('themeToggle');
+          if (btn) btn.textContent = '☀️';
+        });
+      }
+    } catch(e) {}
+  })();
+
   // Mobile menu
   function toggleMenu() {
     document.getElementById('mobileMenu').classList.toggle('open');
@@ -2241,14 +2558,59 @@
   // Form submit
   function handleFormSubmit(e) {
     e.preventDefault();
-    const btn = e.target.querySelector('.form-submit');
+    const form = e.target;
+    const btn = form.querySelector('.form-submit');
+
+    // Collect form data via name attributes
+    const data = new FormData(form);
+    const firstName = data.get('firstName') || '';
+    const lastName = data.get('lastName') || '';
+    const phone = data.get('phone') || '';
+    const email = data.get('email') || '';
+    const service = data.get('service') || '';
+    const details = data.get('details') || '';
+
+    const fullName = `${firstName} ${lastName}`.trim();
+    const now = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+    // --- 1. Send via Email (mailto) ---
+    const subject = encodeURIComponent(`New Quote Request - ${service} | ${fullName}`);
+    const emailBody = encodeURIComponent(
+      `New Quote Request Received\n` +
+      `==============================\n\n` +
+      `Name: ${fullName}\n` +
+      `Phone: ${phone}\n` +
+      `Email: ${email || 'Not provided'}\n` +
+      `Service: ${service}\n\n` +
+      `Project Details:\n${details || 'Not provided'}\n\n` +
+      `Submitted at: ${now}\n` +
+      `==============================\n` +
+      `Evolution Constructions Website`
+    );
+    window.open(`mailto:evolutionconstructions@gmail.com?subject=${subject}&body=${emailBody}`, '_blank');
+
+    // --- 2. Send via WhatsApp ---
+    const waMessage = encodeURIComponent(
+      `🏗️ *New Quote Request – Evolution Constructions*\n\n` +
+      `👤 *Name:* ${fullName}\n` +
+      `📞 *Phone:* ${phone}\n` +
+      `📧 *Email:* ${email || 'Not provided'}\n` +
+      `🔧 *Service:* ${service}\n\n` +
+      `📋 *Project Details:*\n${details || 'Not provided'}\n\n` +
+      `🕐 *Submitted:* ${now}`
+    );
+    setTimeout(() => {
+      window.open(`https://wa.me/918197498848?text=${waMessage}`, '_blank');
+    }, 500);
+
+    // Show success state
     btn.textContent = '✓ ENQUIRY SENT!';
     btn.style.background = '#2a7a2a';
     setTimeout(() => {
       btn.textContent = 'SEND ENQUIRY →';
       btn.style.background = '';
-      e.target.reset();
-    }, 3000);
+      form.reset();
+    }, 4000);
   }
 
   // Stats counter animation
@@ -2274,13 +2636,23 @@
           const target = parseInt(text.replace(/\D/g, ''));
           if (target) animateCounter(num.firstChild || num, target);
         });
+        
         statsObserver.unobserve(entry.target);
+
       }
+
     });
+
   }, { threshold: 0.5 });
 
+
+
   const heroStats = document.querySelector('.hero-stats');
+
   if (heroStats) statsObserver.observe(heroStats);
+
 </script>
+
 </body>
+
 </html>
